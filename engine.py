@@ -25,15 +25,20 @@ def scan():
 
     remove(app.config['UPLOAD_FOLDER'] + '/scantarget');
 
-    if virus and not error:
+    if virus:
         return {
             "status": "FOUND",
             "msg": "Very naughty content found."
         }
-    else:
+    elif error:
         return {
             "status": "ERROR",
             "msg": "something blew up"
+        }
+    else:
+        return {
+            "status": "OK",
+            "msg": ""
         }
 
 if __name__ == '__main__':
