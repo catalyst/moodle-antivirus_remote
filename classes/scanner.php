@@ -22,18 +22,14 @@
  * @author     Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace antivirus_remote;
 
 class scanner extends \core\antivirus\scanner {
 
-    const BLOCK_SIZE = 4096;
-    const UNKNOWN = 'unknown';
-    const OK = 'ok';
-    const ERROR = 'error';
-    const VIRUS = 'found';
-
     function __construct() {
         parent::__construct();
-        $this->status = self::UNKNOWN;
+        $this->status = '';
+        $this->response = '';
     }
 
     /**
@@ -42,10 +38,10 @@ class scanner extends \core\antivirus\scanner {
      * @return boolean
      */
     public function is_configured() {
-        $curl = new curl();
+        $curl = new \curl();
         $host = get_config('antivirus_remote', 'scanhost');
-        $curl->get($host . '/conncheck');
-        $obj = json_decode($curl->response['body']);
+        $resp = $curl->get($host . '/conncheck');
+        $obj = json_decode($resp);
         if ($obj->status === 'OK') {
             return true;
         } else {
@@ -58,81 +54,47 @@ class scanner extends \core\antivirus\scanner {
      *
      * @param string $file
      * @param string $filename
-     * @return void
+     * @return int Scanning constant
      */
     public function scan_file($file, $filename) {
-        $fhandle = fopen($file, 'r');
-        $socket = $this->open_socket();
-        $this->stream_file($fhandle, filesize($file), $socket);
+        $this->post_file($file);
+        if ($this->status === \core\antivirus\scanner::SCAN_RESULT_ERROR) {
+            $this->message_admins(get_string('errorscanfile', 'antivirus_remote'));
+            $this->set_scanning_notice(get_string('errorscanfile', 'antivirus_remote'));
+        } else if ($this->status === \core\antivirus\scanner::SCAN_RESULT_FOUND) {
+            $this->message_admins($this->response->msg);
+            $this->set_scanning_notice($this->response->msg);
+        }
+        return $this->status;
     }
 
     /**
-     * Pipes data to the remote scanning engine.
+     * Post the file as form data to the remote engine.
      *
-     * @param string $data
-     * @return void
+     * @param string $file location of the file
+      * @return void
      */
-    public function scan_data($data) {
-        $socket = $this->open_socket();
-        $this->stream_data($data, $socket);
-        $this->get_socket_response();
-    }
-
-    /**
-     * Open the scanning socket to the remote scanner endpoint.
-     *
-     * @return resource
-     */
-    protected function open_socket() {
+    protected function post_file($file) {
+        $curl = new \curl();
         $host = get_config('antivirus_remote', 'scanhost');
-        $socket = stream_socket_client($host . '/scan');
-        return $socket;
-    }
+        $curl->setHeader([
+            'Content-Type: multipart/form-data'
+        ]);
+        $fields = ['scanfile' => curl_file_create($file)];
 
-    protected function stream_file($fhandle, $filesize, $socket) {
-        $pointer = 0;
-        do {
-            // Detect the end of file ahead of time.
-            if ($pointer + self::BLOCK_SIZE > $filesize) {
-                $block = $filesize - $pointer;
-            } else {
-                $block = self::BLOCK_SIZE;
-            }
-            $chunk = stream_copy_to_stream($fhandle, $socket, $block, $pointer);
-            if ($chunk !== $block || $chunk === false) {
-                $this->status = self::ERROR;
-            }
-        } while ($pointer < $filesize);
+        $resp = $curl->post($host . '/scan', $fields);
 
-        // Append a message for end of data.
-        fwrite($socket, 'ENDDATASTREAM');
+        if ($curl->info['http_code'] !== 200) {
+            $this->status = \core\antivirus\scanner::SCAN_RESULT_ERROR;
+            return;
+        }
 
-        //fflush($this->socket);
-    }
+        $this->response = json_decode($resp);
+        if ($this->response->status === 'FOUND'){;
+            $this->status = \core\antivirus\scanner::SCAN_RESULT_FOUND;
+            return;
+        }
 
-    protected function stream_data($data, $socket) {
-        $pointer = 0;
-        $filesize = strlen($data);
-        do {
-            // Detect the end of file ahead of time.
-            if ($pointer + self::BLOCK_SIZE > $filesize) {
-                $block = $filesize - $pointer;
-            } else {
-                $block = self::BLOCK_SIZE;
-            }
-            $chunk = fwrite($socket, substr($data, $pointer, $block));
-            if ($chunk !== $block || $chunk === false) {
-                $this->status = self::ERROR;
-            }
-        } while ($pointer < $filesize);
-
-        // Append a message for end of data.
-        fwrite($socket, 'ENDDATASTREAM');
-
-        //fflush($this->socket);
-    }
-
-    protected function get_socket_response() {
-
+        $this->status = \core\antivirus\scanner::SCAN_RESULT_OK;
     }
 }
