@@ -33,7 +33,7 @@ def scan():
     remove(app.config['UPLOAD_FOLDER'] + '/scantarget');
 
     if virus:
-        # TODO Log userid here.
+        # TODO Log userid here. Improve returned message with output of subprocess.
         return {
             "status": "FOUND",
             "msg": "Very naughty content found."
