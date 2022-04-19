@@ -14,18 +14,26 @@ def conncheck():
 
 @app.route("/scan", methods=['POST'])
 def scan():
-    f = request.files['scanfile']
-    f.save(app.config['UPLOAD_FOLDER'] + '/scantarget')
+    file = request.files['scanfile']
+    filename = request.form['filename']
+    userid = request.form['userid']
+    file.save(app.config['UPLOAD_FOLDER'] + '/scantarget')
 
     #Call whatever on /var/lib/scanfiles/scantarget
     #subprocess.call('scanme');
 
-    virus = True
-    error = False
+    #Manual eicar detection to test the integration.
+    if 'eicar' in filename.lower():
+        virus = True
+        error = False
+    else:
+        virus = False
+        error = False
 
     remove(app.config['UPLOAD_FOLDER'] + '/scantarget');
 
     if virus:
+        # TODO Log userid here.
         return {
             "status": "FOUND",
             "msg": "Very naughty content found."

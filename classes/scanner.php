@@ -57,7 +57,7 @@ class scanner extends \core\antivirus\scanner {
      * @return int Scanning constant
      */
     public function scan_file($file, $filename) {
-        $this->post_file($file);
+        $this->post_file($file, $filename);
         if ($this->status === \core\antivirus\scanner::SCAN_RESULT_ERROR) {
             $this->message_admins(get_string('errorscanfile', 'antivirus_remote'));
             $this->set_scanning_notice(get_string('errorscanfile', 'antivirus_remote'));
@@ -74,13 +74,19 @@ class scanner extends \core\antivirus\scanner {
      * @param string $file location of the file
       * @return void
      */
-    protected function post_file($file) {
+    protected function post_file($file, $filename) {
+        global $USER;
+
         $curl = new \curl();
         $host = get_config('antivirus_remote', 'scanhost');
         $curl->setHeader([
             'Content-Type: multipart/form-data'
         ]);
-        $fields = ['scanfile' => curl_file_create($file)];
+        $fields = [
+            'scanfile' => curl_file_create($file),
+            'filename' => $filename,
+            'userid' => $USER->id
+        ];
 
         $resp = $curl->post($host . '/scan', $fields);
 

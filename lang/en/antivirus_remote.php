@@ -24,5 +24,6 @@
  */
 
 $string['pluginname'] = 'Remote scanner';
-$string['scanhsot'] = 'Remote host';
+$string['scanhost'] = 'Remote host';
 $string['scanhost_desc'] = 'Enter the host and port for the remote scanning engine.';
+$string['errorscanfile'] = 'The remote scanner experienced an error when scanning file.';
