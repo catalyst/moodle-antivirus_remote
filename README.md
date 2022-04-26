@@ -9,14 +9,17 @@ A lightweight scanning engine for Moodle, that pushes files to a remote scanning
   - [Support](#support)
 
 ## Installation
-- Clone the repository into `lib/antivirus/remote` inside your Moodle installation directory.
+- Clone this repository into `lib/antivirus/remote` under your Moodle installation directory.
+    ```
+    git clone git@github.com:catalyst/moodle-antivirus_remote.git lib/antivirus/remote
+    ```
 - Run the Moodle upgrade: `php admin/cli/upgrade.php`
-- Configure and enable the remote scanning endpoint in `Site administration -> Plugins -> Antivirus plugins -> Manage Antivirus plugins.
+- Configure and enable the "Remote Scanner" in **Site administration > Plugins > Antivirus plugins > Manage Antivirus plugins** (`admin/settings.php?section=manageantiviruses`)
 
 ## Scanner engine
 The scanner API for this plugin is very simple. A scanning engine must implement 2 endpoints.
 - `/conncheck` must be implemented as a GET route to check connectivity to the engine, and should indicate that the antivirus engine is ready to scan files.
-- `/scan` must be implemented as a POST route, to recieve files as `Content-Type: multipart/form-data`
+- `/scan` must be implemented as a POST route, to receive files as `Content-Type: multipart/form-data`
 
 ### Response API
 The scanner should return responses to both endpoints using a shared JSON format, using two keys, `status` and `msg`. The status can be one of 3 values: `OK`, `ERROR` and `FOUND`.
