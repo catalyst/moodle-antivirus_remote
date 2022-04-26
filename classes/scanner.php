@@ -42,11 +42,7 @@ class scanner extends \core\antivirus\scanner {
         $host = get_config('antivirus_remote', 'scanhost');
         $resp = $curl->get($host . '/conncheck');
         $obj = json_decode($resp);
-        if ($obj->status === 'OK') {
-            return true;
-        } else {
-            return false;
-        }
+        return $obj->status === 'OK';
     }
 
     /**
