@@ -11,8 +11,6 @@ A lightweight scanning engine for Moodle, that pushes files to a remote scanning
 
 ## Branches
 
-All installations should use the MOODLE_33_STABLE branch.
-
 | Moodle version    | Branch           | PHP  |
 |-------------------|------------------|------|
 | Moodle 3.3+       | MOODLE_33_STABLE | 7.1+ |

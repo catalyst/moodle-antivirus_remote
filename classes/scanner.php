@@ -72,20 +72,24 @@ class scanner extends \core\antivirus\scanner {
      * Post the file as form data to the remote engine.
      *
      * @param string $file location of the file
+     * @param string $filename the name of the provided file.
+     * @param \curl $curl the curl object to use. Used for testing.
      * @return void
      */
-    protected function post_file($file, $filename) {
+    protected function post_file(string $file, string $filename, \curl $curl = null) {
         global $USER;
 
         // Curl is the easiest engine to dump data to a remote endpoint.
-        $curl = new \curl();
+        if (!isset($curl)) {
+            $curl = new \curl();
+        }
         $host = get_config('antivirus_remote', 'scanhost');
 
         // Sending files needs to be done using form-data.
         $curl->setHeader([
             'Content-Type: multipart/form-data'
         ]);
-        // Now we can set the fields of the "form". Curl_file_create embeds the file into a format that form_data can use
+        // Now we can set the fields of the "form". curl_file_create embeds the file into a format that form_data can use
         $fields = [
             'scanfile' => curl_file_create($file),
             'filename' => $filename,
