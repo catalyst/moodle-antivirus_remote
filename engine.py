@@ -66,4 +66,4 @@ def scan():
 if __name__ == '__main__':
     if not (path.exists(app.config['UPLOAD_FOLDER'])):
         mkdir(app.config['UPLOAD_FOLDER'])
-    app.run(host="localhost", port=8001, debug=True)
+    app.run(host="localhost", port=8000, debug=True)

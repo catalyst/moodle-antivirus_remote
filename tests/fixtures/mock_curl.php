@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Moodle remote scanner API plugin.
+ * Remote scanner tests.
  *
  * @package    antivirus_remote
  * @copyright  2022 Catalyst IT
@@ -23,8 +23,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace antivirus_remote\tests\fixtures;
 
-$plugin->version   = 2022040800;          // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017051500;          // Moodle 3.3+, T12+
-$plugin->component = 'antivirus_remote';   // Full name of the plugin (used for diagnostics).
+class mock_curl extends \curl {
+
+    public function __construct($responsecode, $response) {
+        $this->responsecode = $responsecode;
+        $this->response = $response;
+        parent::__construct();
+    }
+
+    // Here we want to override post to simply act as if the correct result was returned.
+    public function post($url, $params = '', $options = array()) {
+        $this->info['http_code'] = $this->responsecode;
+        return $this->response;
+    }
+}

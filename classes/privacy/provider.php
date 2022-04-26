@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace antivirus_remote\privacy;
+
 /**
  * Moodle remote scanner API plugin.
  *
@@ -22,9 +24,15 @@
  * @author     Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class provider implements \core_privacy\local\metadata\null_provider {
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2022040800;          // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017051500;          // Moodle 3.3+, T12+
-$plugin->component = 'antivirus_remote';   // Full name of the plugin (used for diagnostics).
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

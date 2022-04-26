@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 if (!during_initial_install() && $ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('antivirus_remote/scanhost',
         new lang_string('scanhost', 'antivirus_remote'),

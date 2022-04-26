@@ -27,3 +27,4 @@ $string['pluginname'] = 'Remote scanner';
 $string['scanhost'] = 'Remote host';
 $string['scanhost_desc'] = 'Enter the host and port for the remote scanning engine.';
 $string['errorscanfile'] = 'The remote scanner experienced an error when scanning file.';
+$string['privacy:metadata'] = 'The remote scanner plugin does not store any user data.';

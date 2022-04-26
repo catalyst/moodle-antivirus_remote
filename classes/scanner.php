@@ -26,7 +26,7 @@ namespace antivirus_remote;
 
 class scanner extends \core\antivirus\scanner {
 
-    function __construct() {
+    public function __construct() {
         parent::__construct();
         $this->status = '';
         $this->response = '';
@@ -38,15 +38,13 @@ class scanner extends \core\antivirus\scanner {
      * @return boolean
      */
     public function is_configured() {
+        // Simply curl the conncheck endpoint and get the status code.
         $curl = new \curl();
         $host = get_config('antivirus_remote', 'scanhost');
         $resp = $curl->get($host . '/conncheck');
         $obj = json_decode($resp);
-        if ($obj->status === 'OK') {
-            return true;
-        } else {
-            return false;
-        }
+        // Anything that isn't an OK means the scanner is not available.
+        return $obj->status === 'OK';
     }
 
     /**
@@ -58,6 +56,7 @@ class scanner extends \core\antivirus\scanner {
      */
     public function scan_file($file, $filename) {
         $this->post_file($file, $filename);
+        // Handle naughty statuses.
         if ($this->status === \core\antivirus\scanner::SCAN_RESULT_ERROR) {
             $this->message_admins(get_string('errorscanfile', 'antivirus_remote'));
             $this->set_scanning_notice(get_string('errorscanfile', 'antivirus_remote'));
@@ -65,6 +64,7 @@ class scanner extends \core\antivirus\scanner {
             $this->message_admins($this->response->msg);
             $this->set_scanning_notice($this->response->msg);
         }
+        // Return the status, we know this is mapped to the correct status constant inside of post_file.
         return $this->status;
     }
 
@@ -72,35 +72,44 @@ class scanner extends \core\antivirus\scanner {
      * Post the file as form data to the remote engine.
      *
      * @param string $file location of the file
-      * @return void
+     * @param string $filename the name of the provided file.
+     * @param \curl $curl the curl object to use. Used for testing.
+     * @return void
      */
-    protected function post_file($file, $filename) {
+    protected function post_file(string $file, string $filename, \curl $curl = null) {
         global $USER;
 
-        $curl = new \curl();
+        // Curl is the easiest engine to dump data to a remote endpoint.
+        if (!isset($curl)) {
+            $curl = new \curl();
+        }
         $host = get_config('antivirus_remote', 'scanhost');
+
+        // Sending files needs to be done using form-data.
         $curl->setHeader([
             'Content-Type: multipart/form-data'
         ]);
+        // Now we can set the fields of the "form". curl_file_create embeds the file into a format that form_data can use
         $fields = [
             'scanfile' => curl_file_create($file),
             'filename' => $filename,
             'userid' => $USER->id
         ];
 
+        // Now post away and check the response!
         $resp = $curl->post($host . '/scan', $fields);
-
-        if ($curl->info['http_code'] !== 200) {
+        $this->response = json_decode($resp);
+        if ($curl->info['http_code'] !== 200 || $this->response->status === 'ERROR') {
             $this->status = \core\antivirus\scanner::SCAN_RESULT_ERROR;
             return;
         }
 
-        $this->response = json_decode($resp);
-        if ($this->response->status === 'FOUND'){;
+        if ($this->response->status === 'FOUND') {
             $this->status = \core\antivirus\scanner::SCAN_RESULT_FOUND;
             return;
         }
 
+        // If nothing was found, and no errors, we are good.
         $this->status = \core\antivirus\scanner::SCAN_RESULT_OK;
     }
 }

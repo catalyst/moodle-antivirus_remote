@@ -2,11 +2,19 @@
 A lightweight scanning engine for Moodle, that pushes files to a remote scanning agent for scanning. This avoids the issues of having a single plugin tied to a particular virus engine, and abstracts the implementation of the scanning and return to a remote server.
 
 - [Antivirus_remote](#antivirus_remote)
+  - [Branches](#branches)
   - [Installation](#installation)
   - [Scanner engine](#scanner-engine)
     - [Response API](#response-api)
     - [Example engine](#example-engine)
   - [Support](#support)
+
+## Branches
+
+| Moodle version    | Branch           | PHP  |
+|-------------------|------------------|------|
+| Moodle 3.3+       | MOODLE_33_STABLE | 7.1+ |
+| Totara 12+        | MOODLE_33_STABLE | 7.1+ |
 
 ## Installation
 - Clone this repository into `lib/antivirus/remote` under your Moodle installation directory.
