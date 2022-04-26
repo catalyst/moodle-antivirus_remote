@@ -26,7 +26,7 @@ namespace antivirus_remote;
 
 class scanner extends \core\antivirus\scanner {
 
-    function __construct() {
+    public function __construct() {
         parent::__construct();
         $this->status = '';
         $this->response = '';
@@ -72,7 +72,7 @@ class scanner extends \core\antivirus\scanner {
      * Post the file as form data to the remote engine.
      *
      * @param string $file location of the file
-      * @return void
+     * @return void
      */
     protected function post_file($file, $filename) {
         global $USER;
@@ -100,7 +100,7 @@ class scanner extends \core\antivirus\scanner {
             return;
         }
 
-        if ($this->response->status === 'FOUND'){;
+        if ($this->response->status === 'FOUND') {
             $this->status = \core\antivirus\scanner::SCAN_RESULT_FOUND;
             return;
         }
