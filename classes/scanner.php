@@ -43,6 +43,11 @@ class scanner extends \core\antivirus\scanner {
         $host = get_config('antivirus_remote', 'scanhost');
         $resp = $curl->get($host . '/conncheck');
         $obj = json_decode($resp);
+
+        if (!is_object($obj)) {
+            debugging('Received non-JSON response on /conncheck: ' . $resp);
+            return false;
+        }
         // Anything that isn't an OK means the scanner is not available.
         return $obj->status === 'OK';
     }
@@ -99,6 +104,13 @@ class scanner extends \core\antivirus\scanner {
         // Now post away and check the response!
         $resp = $curl->post($host . '/scan', $fields);
         $this->response = json_decode($resp);
+
+        if (!is_object($this->response)) {
+            debugging('Received non-JSON response on /scan: ' . $resp);
+            $this->status = \core\antivirus\scanner::SCAN_RESULT_ERROR;
+            return;
+        }
+
         if ($curl->info['http_code'] !== 200 || $this->response->status === 'ERROR') {
             $this->status = \core\antivirus\scanner::SCAN_RESULT_ERROR;
             return;
