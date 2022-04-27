@@ -40,8 +40,13 @@ class scanner extends \core\antivirus\scanner {
     public function is_configured() {
         // Simply curl the conncheck endpoint and get the status code.
         $curl = new \curl();
+
+        if (!get_config('useproxy', 'antivirus_remote')) {
+            $curl->proxy = false;
+        }
+
         $host = get_config('antivirus_remote', 'scanhost');
-        $resp = $curl->get($host . '/conncheck');
+        $resp = $curl->get($host . '/conncheck', [], $opts);
         $obj = json_decode($resp);
 
         if (!is_object($obj)) {
@@ -88,6 +93,11 @@ class scanner extends \core\antivirus\scanner {
         if (!isset($curl)) {
             $curl = new \curl();
         }
+
+        if (!get_config('useproxy', 'antivirus_remote')) {
+            $curl->proxy = false;
+        }
+
         $host = get_config('antivirus_remote', 'scanhost');
 
         // Sending files needs to be done using form-data.

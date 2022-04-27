@@ -29,4 +29,8 @@ if (!during_initial_install() && $ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('antivirus_remote/scanhost',
         new lang_string('scanhost', 'antivirus_remote'),
         new lang_string('scanhost_desc', 'antivirus_remote'), 'localhost:8000', PARAM_RAW_TRIMMED));
+
+    $settings->add(new admin_setting_configcheckbox('antivirus_remote/useproxy',
+        new lang_string('useproxy', 'antivirus_remote'),
+        new lang_string('useproxy_desc', 'antivirus_remote'), 1));
 }

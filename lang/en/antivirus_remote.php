@@ -28,3 +28,5 @@ $string['scanhost'] = 'Remote host';
 $string['scanhost_desc'] = 'Enter the host and port for the remote scanning engine.';
 $string['errorscanfile'] = 'The remote scanner experienced an error when scanning file.';
 $string['privacy:metadata'] = 'The remote scanner plugin does not store any user data.';
+$string['useproxy'] = 'Use Moodle proxy';
+$string['useproxy_desc'] = 'Route traffic to the antivirus server via the Moodle proxy.';
