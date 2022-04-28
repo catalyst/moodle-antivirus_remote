@@ -33,7 +33,7 @@ class scanner_test extends \advanced_testcase {
         // Return a set of params: $responsecode + response, and expected responsecode from post_file invocation.
         return [
             [200, '{"status": "OK"}', \core\antivirus\scanner::SCAN_RESULT_OK],
-            [404, '', \core\antivirus\scanner::SCAN_RESULT_ERROR],
+            [404, '{}', \core\antivirus\scanner::SCAN_RESULT_ERROR],
             [200, '{"status": "ERROR", "msg": "CPU melted"}', \core\antivirus\scanner::SCAN_RESULT_ERROR],
             [502, '{"status": "FOUND", "msg": "File is bad"}', \core\antivirus\scanner::SCAN_RESULT_ERROR],
             [200, '{"status": "FOUND", "msg": "File is bad"}', \core\antivirus\scanner::SCAN_RESULT_FOUND]
