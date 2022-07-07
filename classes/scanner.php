@@ -38,11 +38,20 @@ class scanner extends \core\antivirus\scanner {
      * @return boolean
      */
     public function is_configured() {
+        global $CFG;
+
         // Simply curl the conncheck endpoint and get the status code.
         $curl = new \curl();
 
         if (!get_config('useproxy', 'antivirus_remote')) {
             $curl->proxy = false;
+        }
+
+        // Allow for global curlopts from config file only. No frontend for control.
+        if (!empty($CFG->antivirus_remote_curlopts)) {
+            $opts = $CFG->antivirus_remote_curlopts;
+        } else {
+            $opts = [];
         }
 
         $host = get_config('antivirus_remote', 'scanhost');
@@ -87,7 +96,7 @@ class scanner extends \core\antivirus\scanner {
      * @return void
      */
     protected function post_file(string $file, string $filename, \curl $curl = null) {
-        global $USER;
+        global $CFG, $USER;
 
         // Curl is the easiest engine to dump data to a remote endpoint.
         if (!isset($curl)) {
@@ -111,8 +120,15 @@ class scanner extends \core\antivirus\scanner {
             'userid' => $USER->id
         ];
 
+        // Allow for global curlopts from config file only. No frontend for control.
+        if (!empty($CFG->antivirus_remote_curlopts)) {
+            $opts = $CFG->antivirus_remote_curlopts;
+        } else {
+            $opts = [];
+        }
+
         // Now post away and check the response!
-        $resp = $curl->post($host . '/scan', $fields);
+        $resp = $curl->post($host . '/scan', $fields, $opts);
         $this->response = json_decode($resp);
 
         if (!is_object($this->response)) {
