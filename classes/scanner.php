@@ -76,10 +76,8 @@ class scanner extends \core\antivirus\scanner {
     public function scan_file($file, $filename) {
         $this->post_file($file, $filename);
         // Handle naughty statuses.
-        if ($this->status === \core\antivirus\scanner::SCAN_RESULT_ERROR) {
-            $this->message_admins(get_string('errorscanfile', 'antivirus_remote'));
-            $this->set_scanning_notice(get_string('errorscanfile', 'antivirus_remote'));
-        } else if ($this->status === \core\antivirus\scanner::SCAN_RESULT_FOUND) {
+        if (($this->status === \core\antivirus\scanner::SCAN_RESULT_ERROR) ||
+                ($this->status === \core\antivirus\scanner::SCAN_RESULT_FOUND)) {
             $this->message_admins($this->response->msg);
             $this->set_scanning_notice($this->response->msg);
         }
