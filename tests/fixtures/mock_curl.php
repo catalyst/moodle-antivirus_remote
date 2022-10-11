@@ -27,15 +27,45 @@ namespace antivirus_remote\tests\fixtures;
 
 class mock_curl extends \curl {
 
-    public function __construct($responsecode, $response) {
+    /** @var bool Is this curl mock being used for testing retries? */
+    private $shouldretry;
+    /** @var int Counter for sequential calls */
+    public $callcount;
+
+    /**
+     * Constructor for curl mock. Handles input codes and data to return via POST.
+     *
+     * @param string $responsecode
+     * @param string $response
+     * @param boolean $retry
+     */
+    public function __construct($responsecode, $response, $retry = false) {
         $this->responsecode = $responsecode;
         $this->response = $response;
+        $this->retrytest = $retry;
+        $this->callcount = 0;
         parent::__construct();
     }
 
-    // Here we want to override post to simply act as if the correct result was returned.
+    /**
+     * Here we should override post to return the given statuses (and simulate transient errors).
+     *
+     * @param string $url
+     * @param string $params
+     * @param array $options
+     * @return void
+     */
     public function post($url, $params = '', $options = array()) {
         $this->info['http_code'] = $this->responsecode;
-        return $this->response;
+
+        if (!$this->retrytest || ($this->retrytest && $this->callcount > 0)) {
+            $response = $this->response;
+        } else {
+            // Fail to simulate a retry condition.
+            $response = '{"status": "ERROR", "msg": "Retry condition"}';
+        }
+
+        $this->callcount++;
+        return $response;
     }
 }
