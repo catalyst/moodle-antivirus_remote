@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace antivirus_remote;
+
 /**
  * Moodle remote scanner API plugin.
  *
@@ -22,10 +24,11 @@
  * @author     Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace antivirus_remote;
-
 class scanner extends \core\antivirus\scanner {
 
+    /**
+     * Constructor to initialise class vars.
+     */
     public function __construct() {
         parent::__construct();
         $this->status = '';
@@ -91,9 +94,10 @@ class scanner extends \core\antivirus\scanner {
      * @param string $file location of the file
      * @param string $filename the name of the provided file.
      * @param \curl $curl the curl object to use. Used for testing.
+     * @param bool $retry input for whether this call is recursive, false for top level.
      * @return void
      */
-    protected function post_file(string $file, string $filename, \curl $curl = null) {
+    protected function post_file(string $file, string $filename, \curl $curl = null, $retry = false) {
         global $CFG, $USER;
 
         // Curl is the easiest engine to dump data to a remote endpoint.
@@ -136,8 +140,16 @@ class scanner extends \core\antivirus\scanner {
         }
 
         if ($curl->info['http_code'] !== 200 || $this->response->status === 'ERROR') {
-            $this->status = \core\antivirus\scanner::SCAN_RESULT_ERROR;
-            return;
+            $retrytime = get_config('antivirus_remote', 'retry');
+            if ($retrytime > 0 && !$retry) {
+                // We should retry here after waiting a bit, if this is the first scan.
+                // This may allow for transient errors at the scanner side to heal.
+                sleep($retrytime);
+                $this->post_file($file, $filename, $curl, true);
+            } else {
+                $this->status = \core\antivirus\scanner::SCAN_RESULT_ERROR;
+                return;
+            }
         }
 
         if ($this->response->status === 'FOUND') {

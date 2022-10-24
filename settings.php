@@ -33,4 +33,8 @@ if (!during_initial_install() && $ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('antivirus_remote/useproxy',
         new lang_string('useproxy', 'antivirus_remote'),
         new lang_string('useproxy_desc', 'antivirus_remote'), 1));
+
+    $settings->add(new admin_setting_configtextarea('antivirus_remote/retry',
+        new lang_string('retry', 'antivirus_remote'),
+        new lang_string('retry_desc', 'antivirus_remote'), 0, PARAM_INT));
 }

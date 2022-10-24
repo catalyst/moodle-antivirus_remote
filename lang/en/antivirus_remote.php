@@ -30,3 +30,5 @@ $string['errorscanfile'] = 'The remote scanner experienced an error when scannin
 $string['privacy:metadata'] = 'The remote scanner plugin does not store any user data.';
 $string['useproxy'] = 'Use Moodle proxy';
 $string['useproxy_desc'] = 'Route traffic to the antivirus server via the Moodle proxy.';
+$string['retry'] = 'Retry delay';
+$string['retry_desc'] = 'If set, waits for the number of seconds, then attempts to re-scan once. Set to 0 to disable retrying.';
