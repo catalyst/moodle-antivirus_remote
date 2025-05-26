@@ -25,6 +25,11 @@ namespace antivirus_remote;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scanner extends \core\antivirus\scanner {
+    /** @var string Status */
+    public $status;
+
+    /** @var string Response */
+    public $response;
 
     /**
      * Constructor to initialise class vars.
