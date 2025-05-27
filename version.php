@@ -28,3 +28,4 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version   = 2022101100;          // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2017051500;          // Moodle 3.3+, T12+
 $plugin->component = 'antivirus_remote';   // Full name of the plugin (used for diagnostics).
+$plugin->supported = [33, 500];

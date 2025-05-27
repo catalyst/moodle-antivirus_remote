@@ -32,6 +32,12 @@ class mock_curl extends \curl {
     /** @var int Counter for sequential calls */
     public $callcount;
 
+    /** @var string Code to respond with */
+    private $responsecode;
+
+    /** @var bool if should retry */
+    private $retrytest;
+
     /**
      * Constructor for curl mock. Handles input codes and data to return via POST.
      *
